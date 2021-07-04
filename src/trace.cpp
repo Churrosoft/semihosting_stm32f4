@@ -26,7 +26,6 @@
  */
 
 // ----------------------------------------------------------------------------
-#define TRACE
 #if defined(TRACE)
 #include "../include/trace.h"
 #include "../include/sh_internals.h"
@@ -38,102 +37,6 @@
 #ifndef OS_INTEGER_TRACE_PRINTF_TMP_ARRAY_SIZE
 #define OS_INTEGER_TRACE_PRINTF_TMP_ARRAY_SIZE (128)
 #endif
-
-// Este namespace hace poco y nada, no uso newlib, la mayoria del codigo ta' repetido
-namespace trace
-{
-  // ----------------------------------------------------------------------
-
-  /*   ssize_t __attribute__((weak))
-  write(const void *buf __attribute__((unused)), size_t nbyte)
-  {
-    return write(buf, nbyte);
-  }
- */
-  // ----------------------------------------------------------------------
-
-  int __attribute__((weak))
-  printf(const char *format, ...)
-  {
-    va_list args;
-    va_start(args, format);
-
-    int ret = vprintf(format, args);
-
-    va_end(args);
-    return ret;
-  }
-
-  int __attribute__((weak))
-  vprintf(const char *format, va_list args)
-  {
-    // Caution: allocated on the stack!
-    char buf[OS_INTEGER_TRACE_PRINTF_TMP_ARRAY_SIZE];
-
-    // TODO: possibly rewrite it to no longer use newlib,
-    // (although the nano version is no longer very heavy).
-
-    // Print to the local buffer
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wformat-nonliteral"
-    int ret = ::vsnprintf(buf, sizeof(buf), format, args);
-#pragma GCC diagnostic pop
-    if (ret > 0)
-    {
-      // Transfer the buffer to the device.
-      ret = static_cast<int>(write(buf, static_cast<size_t>(ret)));
-    }
-    return ret;
-  }
-
-  int __attribute__((weak))
-  puts(const char *s)
-  {
-    int ret = static_cast<int>(write(s, strlen(s)));
-    if (ret >= 0)
-    {
-      ret = static_cast<int>(write("\n", 1)); // Add a line terminator
-    }
-    if (ret > 0)
-    {
-      return ret;
-    }
-    else
-    {
-      return EOF;
-    }
-  }
-
-  int __attribute__((weak))
-  putchar(int c)
-  {
-    int ret = static_cast<int>(write(reinterpret_cast<const char *>(&c), 1));
-    if (ret > 0)
-    {
-      return c;
-    }
-    else
-    {
-      return EOF;
-    }
-  }
-
-  void __attribute__((weak))
-  dump_args(int argc, char *argv[])
-  {
-    printf("main(argc=%d, argv=[", argc);
-    for (int i = 0; i < argc; ++i)
-    {
-      if (i != 0)
-      {
-        printf(", ");
-      }
-      printf("\"%s\"", argv[i]);
-    }
-    printf("]);\n");
-  }
-
-} /* namespace trace */
 
 // ----------------------------------------------------------------------------
 

@@ -74,7 +74,6 @@ enum OperationNumber
 #else
 #define AngelSWI AngelSWI_ARM
 #endif
-
 // For thumb only architectures use the BKPT instruction instead of SWI.
 #if defined(__ARM_ARCH_7M__) || defined(__ARM_ARCH_7EM__) || defined(__ARM_ARCH_6M__)
 #define AngelSWIInsn "bkpt"
@@ -97,6 +96,7 @@ static inline int
     __attribute__((always_inline))
     call_host(int reason, void *arg)
 {
+#ifndef __INTELLISENSE__
 
   int value;
   asm volatile(
@@ -122,11 +122,11 @@ static inline int
   // registers. Note: we are assuming the manual is right and
   // Angel is respecting the APCS.
   return value;
+#endif
 }
 
 // ----------------------------------------------------------------------------
 
-// se tiene que reemplazar por el Error_Handler de HAL en caso de usarlo, en libopencm3 no hace falta hacer nada raro
 // Function used in _exit() to return the status code as Angel exception.
 static inline void
     __attribute__((always_inline, noreturn))
