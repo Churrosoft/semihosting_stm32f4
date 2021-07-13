@@ -24,7 +24,7 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-
+#define TRACE
 // ----------------------------------------------------------------------------
 #if defined(TRACE)
 #include "../include/trace.h"
@@ -54,7 +54,8 @@ int trace_printf(const char *format, ...)
   if (ret > 0)
   {
     // Transfer the buffer to the device
-    ret = write(buf, (size_t)ret);
+    uint32_t message[] = {OperationType::STDERR(uint32_t)(buf), strlen(buf) / sizeof(char) - 1};
+    send_command(OperationNumber::SEMIHOSTING_SYS_WRITE, message);
   }
 
   va_end(ap);
@@ -63,14 +64,9 @@ int trace_printf(const char *format, ...)
 
 int trace_puts(const char *s)
 {
-  write(s, strlen(s));
-  return write("\n", 1);
-}
-
-int trace_putchar(int c)
-{
-  write((const char *)&c, 1);
-  return c;
+  uint32_t message[] = {OperationType::STDERR(uint32_t)(s), strlen(s) / sizeof(char) - 1};
+  send_command(OperationNumber::SEMIHOSTING_SYS_WRITE, message);
+  return 0;
 }
 
 void trace_dump_args(int argc, char *argv[])
@@ -87,10 +83,31 @@ void trace_dump_args(int argc, char *argv[])
   trace_printf("]);\n");
 }
 
-void trace_initialize()
+[[deprecated]] void trace_initialize()
 {
-  initialise_monitor_handles();
 }
 // ----------------------------------------------------------------------------
+#else
+int trace_printf(const char *format, ...)
+{
+  return -1;
+}
 
+int trace_puts(const char *s)
+{
+  return -1;
+}
+
+int trace_putchar(int c)
+{
+  return -1;
+}
+
+void trace_dump_args(int argc, char *argv[])
+{
+}
+
+void trace_initialize()
+{
+}
 #endif // TRACE

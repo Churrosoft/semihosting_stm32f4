@@ -64,8 +64,6 @@ int trace_printf(const char *format, ...);
 
 int trace_puts(const char *s);
 
-int trace_putchar(int c);
-
 void trace_dump_args(int argc, char *argv[]);
 
 // ----------------------------------------------------------------------------
