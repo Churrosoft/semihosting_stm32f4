@@ -28,6 +28,7 @@
 // ----------------------------------------------------------------------------
 #if defined(TRACE)
 #include "../include/trace.h"
+#include "../include/semihosting.h"
 #include "../include/sh_internals.h"
 #include <stdio.h>
 #include <stdarg.h>
@@ -35,7 +36,7 @@
 #include "string.h"
 
 #ifndef OS_INTEGER_TRACE_PRINTF_TMP_ARRAY_SIZE
-#define OS_INTEGER_TRACE_PRINTF_TMP_ARRAY_SIZE (128)
+#define OS_INTEGER_TRACE_PRINTF_TMP_ARRAY_SIZE (256)
 #endif
 
 // ----------------------------------------------------------------------------
@@ -54,8 +55,8 @@ int trace_printf(const char *format, ...)
   if (ret > 0)
   {
     // Transfer the buffer to the device
-    uint32_t message[] = {OperationType::STDERR(uint32_t)(buf), strlen(buf) / sizeof(char) - 1};
-    send_command(OperationNumber::SEMIHOSTING_SYS_WRITE, message);
+    uint32_t message[] = {STDERR, (uint32_t)(buf), strlen(buf) / sizeof(char) - 1};
+    send_command(SEMIHOSTING_SYS_WRITE, message);
   }
 
   va_end(ap);
@@ -64,8 +65,8 @@ int trace_printf(const char *format, ...)
 
 int trace_puts(const char *s)
 {
-  uint32_t message[] = {OperationType::STDERR(uint32_t)(s), strlen(s) / sizeof(char) - 1};
-  send_command(OperationNumber::SEMIHOSTING_SYS_WRITE, message);
+  uint32_t message[] = {STDERR, (uint32_t)(s), strlen(s) / sizeof(char) - 1};
+  send_command(SEMIHOSTING_SYS_WRITE, message);
   return 0;
 }
 
