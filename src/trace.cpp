@@ -24,7 +24,6 @@
  * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
  * OTHER DEALINGS IN THE SOFTWARE.
  */
-#define TRACE
 // ----------------------------------------------------------------------------
 #if defined(TRACE)
 #include "../include/trace.h"
@@ -87,6 +86,20 @@ void trace_dump_args(int argc, char *argv[])
 [[deprecated]] void trace_initialize()
 {
 }
+
+void hexStr(unsigned char data, char *dataArr)
+{
+
+  char A = hexmap[(data & 0xF0) >> 4];
+  char B = hexmap[data & 0x0F];
+
+  dataArr[0] = '0';
+  dataArr[1] = 'x';
+  dataArr[2] = A;
+  dataArr[3] = B;
+  dataArr[4] = '\0';
+}
+
 // ----------------------------------------------------------------------------
 #else
 int trace_printf(const char *format, ...)
@@ -110,5 +123,9 @@ void trace_dump_args(int argc, char *argv[])
 
 void trace_initialize()
 {
+}
+void hexStr(unsigned char data, char *dataArr)
+{
+
 }
 #endif // TRACE
