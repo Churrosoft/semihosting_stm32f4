@@ -31,7 +31,7 @@
 // ----------------------------------------------------------------------------
 
 #include <unistd.h>
-
+#include <stdint.h>
 // ----------------------------------------------------------------------------
 
 // The trace device is an independent output channel, intended for debug
@@ -68,7 +68,7 @@ void trace_dump_args(int argc, char *argv[]);
 
 void hexStr(unsigned char, char *);
 
-constexpr char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
+const char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
                            '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 // ----------------------------------------------------------------------------
 
