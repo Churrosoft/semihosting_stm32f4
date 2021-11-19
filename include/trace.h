@@ -68,8 +68,7 @@ void trace_dump_args(int argc, char *argv[]);
 
 void hexStr(unsigned char, char *);
 
-const char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
-                           '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
 // ----------------------------------------------------------------------------
 
 #endif // DIAG_TRACE_H_

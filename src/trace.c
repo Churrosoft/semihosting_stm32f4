@@ -83,13 +83,16 @@ void trace_dump_args(int argc, char *argv[])
   trace_printf("]);\n");
 }
 
-[[deprecated]] void trace_initialize()
+/* [[deprecated]] */ void trace_initialize()
 {
 }
 
 void hexStr(unsigned char data, char *dataArr)
 {
 
+const char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
+                           '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+                           
   char A = hexmap[(data & 0xF0) >> 4];
   char B = hexmap[data & 0x0F];
 
