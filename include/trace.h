@@ -61,6 +61,7 @@ void trace_initialize(void);
 ssize_t trace_write(const char *buf, size_t nbyte);
 
 int trace_printf(const char *format, ...);
+int debug_printf(const char *format, ...);
 
 int trace_puts(const char *s);
 

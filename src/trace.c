@@ -27,11 +27,12 @@
 // ----------------------------------------------------------------------------
 #if defined(TRACE)
 #include "../include/trace.h"
+
+#include <stdarg.h>
+#include <stdio.h>
+
 #include "../include/semihosting.h"
 #include "../include/sh_internals.h"
-#include <stdio.h>
-#include <stdarg.h>
-
 #include "string.h"
 
 #ifndef OS_INTEGER_TRACE_PRINTF_TMP_ARRAY_SIZE
@@ -40,8 +41,7 @@
 
 // ----------------------------------------------------------------------------
 
-int trace_printf(const char *format, ...)
-{
+int trace_printf(const char *format, ...) {
   int ret;
   va_list ap;
 
@@ -51,31 +51,52 @@ int trace_printf(const char *format, ...)
 
   // Print to the local buffer
   ret = vsnprintf(buf, sizeof(buf), format, ap);
-  if (ret > 0)
-  {
+  if (ret > 0) {
     // Transfer the buffer to the device
     uint32_t message[] = {STDERR, (uint32_t)(buf), strlen(buf) / sizeof(char) - 1};
     send_command(SEMIHOSTING_SYS_WRITE, message);
   }
 
+#if defined(TESTING)
+  printf("\n");
+#endif
   va_end(ap);
   return ret;
 }
 
-int trace_puts(const char *s)
-{
+int debug_printf(const char *format, ...) {
+  int ret;
+  va_list ap;
+#if defined(TESTING)
+
+  va_start(ap, format);
+
+  static char buf[OS_INTEGER_TRACE_PRINTF_TMP_ARRAY_SIZE];
+
+  // Print to the local buffer
+  ret = vsnprintf(buf, sizeof(buf), format, ap);
+  if (ret > 0) {
+    // Transfer the buffer to the device
+    uint32_t message[] = {STDERR, (uint32_t)(buf), strlen(buf) / sizeof(char) - 1};
+    send_command(SEMIHOSTING_SYS_WRITE, message);
+  }
+
+  printf("\n");
+#endif
+  va_end(ap);
+  return ret;
+}
+
+int trace_puts(const char *s) {
   uint32_t message[] = {STDERR, (uint32_t)(s), strlen(s) / sizeof(char) - 1};
   send_command(SEMIHOSTING_SYS_WRITE, message);
   return 0;
 }
 
-void trace_dump_args(int argc, char *argv[])
-{
+void trace_dump_args(int argc, char *argv[]) {
   trace_printf("main(argc=%d, argv=[", argc);
-  for (int i = 0; i < argc; ++i)
-  {
-    if (i != 0)
-    {
+  for (int i = 0; i < argc; ++i) {
+    if (i != 0) {
       trace_printf(", ");
     }
     trace_printf("\"%s\"", argv[i]);
@@ -83,16 +104,11 @@ void trace_dump_args(int argc, char *argv[])
   trace_printf("]);\n");
 }
 
-/* [[deprecated]] */ void trace_initialize()
-{
-}
+/* [[deprecated]] */ void trace_initialize() {}
 
-void hexStr(unsigned char data, char *dataArr)
-{
+void hexStr(unsigned char data, char *dataArr) {
+  const char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
-const char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
-                           '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-                           
   char A = hexmap[(data & 0xF0) >> 4];
   char B = hexmap[data & 0x0F];
 
@@ -105,30 +121,15 @@ const char hexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
 
 // ----------------------------------------------------------------------------
 #else
-int trace_printf(const char *format, ...)
-{
-  return -1;
-}
+int trace_printf(const char *format, ...) { return -1; }
+int debug_printf(const char *format, ...) { return -1; }
 
-int trace_puts(const char *s)
-{
-  return -1;
-}
+int trace_puts(const char *s) { return -1; }
 
-int trace_putchar(int c)
-{
-  return -1;
-}
+int trace_putchar(int c) { return -1; }
 
-void trace_dump_args(int argc, char *argv[])
-{
-}
+void trace_dump_args(int argc, char *argv[]) {}
 
-void trace_initialize()
-{
-}
-void hexStr(unsigned char data, char *dataArr)
-{
-
-}
-#endif // TRACE
+void trace_initialize() {}
+void hexStr(unsigned char data, char *dataArr) {}
+#endif    // TRACE
